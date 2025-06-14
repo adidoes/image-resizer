@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  image-resizer:
+    image: image-resizer:latest
+    container_name: image-resizer
+    ports:
+      - "3090:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # networks:
+    #   - resizer-network
+#     volumes:
+#       # Optional: Mount logs directory if you want to persist logs
+#       - ./logs:/app/logs
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.image-resizer.rule=Host(`resizer.local`)"
+#       - "traefik.http.services.image-resizer.loadbalancer.server.port=3000"
+
+# networks:
+#   resizer-network:
+#     driver: bridge

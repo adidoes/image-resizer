@@ -1,0 +1,66 @@
+# Portainer Stack Configuration for Driveway Camera Resizer
+#
+# Instructions for Portainer deployment:
+# 1. In Portainer, go to "Stacks" -> "Add stack"
+# 2. Name: image-resizer
+# 3. Copy the content below into the "Web editor"
+# 4. Deploy the stack
+#
+# Service will be available at: http://YOUR_SERVER_IP:3001
+# Health check: http://YOUR_SERVER_IP:3001/health
+# Usage: http://YOUR_SERVER_IP:3001/resize?url=IMAGE_URL&width=500&height=500
+
+version: "3.8"
+
+services:
+  image-resizer:
+    image: image-resizer:latest
+    container_name: image-resizer
+    restart: unless-stopped
+
+    # Port mapping - expose on port 3001 to avoid conflicts
+    ports:
+      - "3090:3000"
+
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+
+    # Health check configuration
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Security configuration
+    # security_opt:
+    #   - no-new-privileges:true
+    # user: "1001:1001"
+
+    # # Resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+    #       cpus: "0.5"
+    #     reservations:
+    #       memory: 256M
+    #       cpus: "0.25"
+
+    # # Logging configuration
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"

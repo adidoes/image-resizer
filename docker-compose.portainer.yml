@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  image-resizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: image-resizer
+    ports:
+      - "3090:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # networks:
+    #   - resizer-network
+#     volumes:
+#       # Create logs directory for container logs
+#       - resizer-logs:/app/logs
+#     labels:
+#       # Portainer labels
+#       - "io.portainer.accesscontrol.teams=administrators"
+#       # Optional Traefik labels if you use reverse proxy
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.image-resizer.rule=Host(`camera-resizer.local`)"
+#       - "traefik.http.services.image-resizer.loadbalancer.server.port=3000"
+
+# volumes:
+#   resizer-logs:
+#     driver: local
+
+# networks:
+#   resizer-network:
+#     driver: bridge
